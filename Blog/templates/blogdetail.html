@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Chi tiết{% endblock %}
+{% block content %}    
+<style>
+  .content-blog p{
+    padding: unset;
+    margin: unset;
+    border: unset;
+
+  }
+</style>      
+<section class="blog-posts grid-system">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="all-blog-posts">
+              <div class="row">
+                <div class="col-lg-12">
+                  <div class="blog-post">
+                    <div class="blog-thumb">
+                      <img src="{% static '/img/' %}{{blog.blog_img}}" alt="">
+                    </div>
+                    <div class="down-content">
+                      <span>{{blog.blog_title}}</span>
+                      <ul class="post-info">
+                        <li><a href="{% url 'bloglist' blog.blog_author%}">{{blog.blog_author}}</a></li>
+                        <li><a>{{blog.blog_create_date}}</a></li>
+                        <li><a>{{sumcomment}} Comments</a></li>
+                        <input type="text" id="slug" value="{{blog.blog_slug}}" hidden>
+                      </ul>
+                      <div class="content-blog">
+                        {{blog.blog_content | safe}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-12">
+                  <div class="sidebar-item comments">
+                    <div class="sidebar-heading">
+                      <h2>{{sumcomment}} comments</h2>
+                    </div>
+                    <div class="content">
+                      <ul id="container-comment">
+                        {% for comment in comment %}
+                          {% for user in users %}
+                            {% if comment.user_id_id == user.User_id %}
+                            <li  style="position: relative;">
+                              <div class="author-thumb">
+                                <img style="height: 100px; object-fit: cover; border-radius: 50%; min-width: 100px;" src="{% static 'img/' %}{{user.User_img}}" alt="">
+                              </div>
+                              <div class="right-content" >
+                                <h4>{{user.User_name}}<span>{{comment.Comment_date}}</span></h4>
+                                <p>{{comment.Comment_content}}</p>
+                              </div>
+                            </li>
+                            {% endif %}
+                          {% endfor %}
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-12">
+                  <div class="sidebar-item submit-comment">
+                    <div class="sidebar-heading">
+                      <h2>Your comment</h2>
+                    </div>
+                    <div class="content">
+                      
+                        <div class="row">
+                            <div class="col-lg-12">
+                              <!-- <fieldset>
+                                <textarea id="txtcmt" name="message" rows="6"  placeholder="Type your comment" required=""></textarea>
+                              </fieldset> -->
+                            
+                              <textarea id="txtcmt" type="text"></textarea>
+                            </div>
+                            <div class="col-lg-12">
+                              <fieldset>
+                                <form method="post">
+                                  {% csrf_token %}
+                                  <button type="submit" id="form-submit" class="main-button">Bình luận</button>
+                                </form>
+                                </fieldset>
+                            </div>
+                          </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="sidebar">
+              <div class="row">
+                <div class="col-lg-12">
+                  <div class="sidebar-item search">
+                    <form id="search_form" method="post">
+                    {% csrf_token %}
+                      <input id="message1" type="text" name="search" class="searchText" placeholder="type to search..." >
+                    </form>
+                  </div>
+                </div>
+                <div class="col-lg-12">
+                  <div class="sidebar-item categories">
+                    <div class="sidebar-heading">
+                      <h2>Danh Mục Bài Viết</h2>
+                    </div>
+                    <div class="content">
+                      <ul>
+                        {% for category in category %}
+                            <li><a href="{% url 'danh-muc' category.category_slug %}">- {{category.category_name}}</a></li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-12">
+                  <div class="sidebar-item recent-posts">
+                    <div class="sidebar-heading">
+                      <h2>Bài viết mới nhất</h2>
+                    </div>
+                    <div class="content">
+                      <ul>
+                        {% for blognew in blognew %}
+                            <li>
+                                <a href="{% url 'chi-tiet' blognew.blog_slug %}">
+                                <h5>{{blognew.blog_title}}</h5>
+                                <span>{{blognew.blog_create_date}}, bởi {{blognew.blog_author}}</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script>
+    $(document).ready(function(){
+
+        var url = window.location.href.split("/")
+
+        $("#message1").keyup(function(){
+            var new_url=url[0]+"/trang-chu/"+"?search="+$('#message1').val();
+            window.history.pushState("data","Title",new_url);
+        });
+        $("#message1").click(function(){
+            window.history.pushState("data","Title",url[0]+url[1]);
+        });
+        $("#form-submit").click(function(){
+             var content = $("#txtcmt").val()
+             var slug = $("#slug").val()
+            $.get("{% url 'ajax' %}",{comment:content,slug:slug},function(data){
+                //$("#container-comment").append(data)
+                alert(data)
+            });
+        });
+        $(".reply").click(function(){
+           idcmt = $(this).attr('idcmt')
+           $('#idcomment'+idcmt).append("<textarea id='txtcmt' type='text'></textarea>")
+        });
+    })
+</script>
+{% endblock %}

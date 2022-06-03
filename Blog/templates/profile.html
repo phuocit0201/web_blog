@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Thông tin cá nhân{% endblock %}
+{% block content %}
+<style>
+    .avatar{
+        width: 170px;
+        height: 170px;
+        object-fit: cover;
+        border-radius: 50%;
+        padding: 10px;
+    }
+</style>
+<section class="contact-us">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="down-contact">
+              <div class="row">
+                <div id="snackbar"></div>
+                <div class="col-lg-7">
+                  <div class="sidebar-item contact-form">
+                    <div class="sidebar-heading text-center">
+                      <h2>Thông tin cá nhân</h2>
+                    </div>
+                    <div class="content">
+                    </div>
+                      <form id="contact" action="javascript:void(0)" method="post">
+                        <div class="row">
+                          <div class="col-md-12 col-sm-12">
+                            <fieldset class="text-center" style="margin-top:-17px;">
+                              <form runat="server">
+                                <img class="avatar" id="blah" src="{% static 'img/' %}{{user.User_img}}" alt="your image" />
+                                <input type="text" id="img" value="{{user.User_img}}" hidden>
+                                <input class="form-control" style="padding-top: 10px;" accept="image/*" type='file' id="imgInp" />
+                              </form>
+                            </fieldset>
+                          </div>
+                          <div class="col-md-12 col-sm-12">
+                            <fieldset>
+                              <input class="form-control" value="{{user.User_name}}" name="fullname" type="text" id="fullname" placeholder="Họ Và Tên">
+                            </fieldset>
+                          </div>
+                          <div class="col-md-12 col-sm-12">
+                            <fieldset>
+                              <input class="form-control" value="{{user.User_email}}" name="email" type="email" id="email" placeholder="Email">
+                            </fieldset>
+                          </div>
+                          <div class="col-md-12 col-sm-12">
+                            <fieldset>
+                              <input class="form-control" value="{{user.User_phone}}" name="phone" type="number" id="phone" placeholder="Số Điện Thoại">
+                            </fieldset>
+                          </div>
+                          <div class="col-md-12 col-sm-12">
+                            <fieldset>
+                              <input class="form-control" value="{{user.User_address}}" name="address" type="text" id="address" placeholder="Địa Chỉ">
+                            </fieldset>
+                          </div>
+                          <div class="col-lg-12">
+                            <fieldset class="text-center">
+                              <button id="changerinfo" style="margin-top: 10px;" type="submit" id="form-submit" class="main-button">Cập Nhật Thông Tin</button>
+                            </fieldset>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="sidebar-item contact-form">
+                      <div class="sidebar-heading text-center">
+                        <h2>Thay đổi mật khẩu</h2>
+                      </div>
+                      <div class="content">
+                      </div>
+                        <form id="contact" action="javascript:void(0)" method="post">
+                          <div class="row">
+                            <div class="col-md-12 col-sm-12">
+                              <fieldset>
+                                <input class="form-control" name="passwordold" type="password" id="passwordold" placeholder="Mật khẩu cũ">
+                              </fieldset>
+                            </div>
+                            <div class="col-md-12 col-sm-12">
+                                <fieldset>
+                                  <input class="form-control" name="passwordnew" type="password" id="passwordnew" placeholder="Mật khẩu mới">
+                                </fieldset>
+                            </div>
+                            <div class="col-md-12 col-sm-12">
+                                <fieldset>
+                                  <input class="form-control" name="passwordconfirm" type="password" id="passwordconfirm" placeholder="Xác nhận mật khẩu mới">
+                                </fieldset>
+                            </div>
+                            <div class="col-lg-12">
+                              <fieldset class="text-center">
+                                <button id="changepass" style="margin-top: 10px;" type="submit" id="form-submit" class="main-button">Thay đổi mật khẩu</button>
+                              </fieldset>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script type="text/javascript" src="{% static 'froala-editor/js/froala_editor.pkgd.min.js' %}"></script>
+		<script> 
+			$(document).ready(function(){
+                $('.form-control').css({"text-transform":"unset"})
+                error = []
+                //đổi thông tin cá nhân
+                $('#changerinfo').click(function(){
+                    if (error.length == 0){ 
+                        var fullname = $('#fullname').val()
+                        var email = $('#email').val()
+                        var phone = $('#phone').val()
+                        var address = $('#address').val()
+
+                        if(fullname != "" && email != "" && phone != "" && address != ""){
+                            var img
+                            if($('#imgInp').val() == ""){
+                              img = $('#img').val()
+                            }else{
+                              img = "blog/" + $('#imgInp').val().split("\\")[2]
+                            }
+                            $.post("{% url 'updateprofile' %}",{
+                            changeinfo:1,
+                            fullname:fullname,
+                            email:email,
+                            phone:phone,
+                            address:address,
+                            img:img
+                            },function(data){
+                              $('#snackbar').css({"background-color":"#47d864"})
+                              $('.form-control').css({"border":"1px solid #eee"})
+                              $('#snackbar').html("<i class='fas fa-exclamation-circle'></i> Thay đổi thông tin thành công")
+                              var x = document.getElementById("snackbar");
+                              x.className = "show";
+                              setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+                            });
+                        }else{
+                            $('#snackbar').css({"background-color":"#ff623d"})
+                            $('#snackbar').html("<i class='fas fa-exclamation-circle'></i> Vui lòng điền đầy đủ thông tin")
+                            var x = document.getElementById("snackbar");
+                            x.className = "show";
+                            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+                        }
+                    }else{
+                            $('#snackbar').css({"background-color":"#ff623d"})
+                            $('#snackbar').html("<i class='fas fa-exclamation-circle'></i> Vui lòng kiểm tra lại thông tin")
+                            var x = document.getElementById("snackbar");
+                            x.className = "show";
+                            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+                    }
+                   
+                });
+                //-------end----------------------
+                //đổi mật khẩu
+                $('#changepass').click(function(){
+                    //if (error.length == 0){ 
+                        var passwordold = $('#passwordold').val()
+                        var passwordnew = $('#passwordnew').val()
+                        var passwordnewcf = $('#passwordconfirm').val()
+                        if(passwordold != "" && passwordnew != "" && passwordnewcf != ""){
+                            $.post("{% url 'updateprofile' %}",{
+                            changepass:1,
+                            passwordold:passwordold,
+                            passwordnew:passwordnew,
+                            passwordnewcf:passwordnewcf,
+                            },function(data){
+                              if(data == 1){
+                                $('#passwordold').val("")
+                                $('#passwordnew').val("")
+                                $('#passwordconfirm').val("")
+                                $('.form-control').css({"border":"1px solid #eee"})
+                                $('#snackbar').css({"background-color":"#47d864"})
+                                $('#snackbar').html("<i class='fas fa-exclamation-circle'></i> Thay đổi mật khẩu thành công")
+                                var x = document.getElementById("snackbar");
+                                x.className = "show";
+                                setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+                              }else if(data == 2){
+                                $('#snackbar').css({"background-color":"#ff623d"})
+                                $('#snackbar').html("<i class='fas fa-exclamation-circle'></i> Xác nhận mật khẩu không khớp")
+                                var x = document.getElementById("snackbar");
+                                x.className = "show";
+                                setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+                              }else{
+                                $('#snackbar').css({"background-color":"#ff623d"})
+                                $('#passwordold').css({"border":"2px solid #ff623d"})
+                                $('#snackbar').html("<i class='fas fa-exclamation-circle'></i> Mật khẩu cũ không chính xác")
+                                var x = document.getElementById("snackbar");
+                                x.className = "show";
+                                setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+                              }
+                             
+                            });
+                        }else{
+                            $('#snackbar').css({"background-color":"#ff623d"})
+                            $('#snackbar').html("<i class='fas fa-exclamation-circle'></i> Vui lòng điền đầy đủ thông tin")
+                            var x = document.getElementById("snackbar");
+                            x.className = "show";
+                            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+                        }
+                    // }else{
+                    //         $('#snackbar').css({"background-color":"#ff623d"})
+                    //         $('#snackbar').html("<i class='fas fa-exclamation-circle'></i> Vui lòng kiểm tra lại thông tin")
+                    //         var x = document.getElementById("snackbar");
+                    //         x.className = "show";
+                    //         setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+                    // }
+                   
+                })
+                //dùng ajax để kiểm tra dữ liệu
+                $('#passwordnew').keyup(function(){
+                    passwordnew =  $('#passwordnew').val()
+                    //kiểm tra passwordnew
+                    if(passwordnew.length >= 6){
+                        if(error.indexOf("passwordnew") >= 0){
+                             error.splice(error.indexOf("passwordnew"),1)
+                        }
+                        $('#passwordnew').css({"border":"2px solid #47d864"})
+                        $('#notification').html("")
+                    }else{
+                        if(error.indexOf("passwordnew") < 0){
+                            error.push("passwordnew")
+                        }
+                        $('#passwordnew').css({"border":"2px solid #ff623d"})
+                        $('#notification').html('<h6 style="color: #ff623d;">Mật khẩu phải trên 6 kí tự</h6>')
+                    }
+                })
+                $('#passwordconfirm').keyup(function(){
+                    password =  $('#passwordnew').val()
+                    password1 =  $('#passwordconfirm').val()
+                    //kiểm tra password-confirm
+                    if(password == password1){
+                        if(error.indexOf("passwordconfirm") >= 0){
+                             error.splice(error.indexOf("passwordconfirm"),1)
+                        }
+                        $('#passwordconfirm').css({"border":"2px solid #47d864"})
+                        $('#notification').html("")
+                    }else{
+                        if(error.indexOf("passwordconfirm") < 0){
+                            error.push("passwordconfirm")
+                        }
+                        $('#passwordconfirm').css({"border":"2px solid #ff623d"})
+                        $('#notification').html('<h6 style="color: #ff623d;">Xác nhận mật khẩu không khớp</h6>')
+                    }
+                })
+                $('#email').keyup(function(){
+                    email =  $('#email').val()
+                    //kiểm tra email
+                    if(email.search("@gmail.com") >= 0){
+                        if(error.indexOf("email") >= 0){
+                            error.splice(error.indexOf("email"),1)
+                        }
+                        $('#email').css({"border":"2px solid #47d864"})
+                        $('#notification').html("")
+                    }else{
+                        if(error.indexOf("email") < 0){
+                            error.push("email")
+                        }
+                        $('#email').css({"border":"2px solid #ff623d"})
+                        $('#notification').html('<h6 style="color: #ff623d;">Email không hợp lệ</h6>')
+                    }
+                })
+                $('#fullname').keyup(function(){
+                    fullname =  $('#fullname').val()
+                    //kiểm tra fullname
+                    if(fullname.length >= 2){
+                        if(error.indexOf("fullname") >= 0){
+                            error.splice(error.indexOf("fullname"),1)
+                        }
+                        $('#fullname').css({"border":"2px solid #47d864"})
+                        $('#notification').html("")
+                    }else{
+                        if(error.indexOf("fullname") < 0){
+                            error.push("fullname")
+                        }
+                        $('#fullname').css({"border":"2px solid #ff623d"})
+                        $('#notification').html('<h6 style="color: #ff623d;">Tên phải trên 2 kí tự</h6>')
+                    }
+                })
+                $('#phone').keyup(function(){
+                    phone =  $('#phone').val()
+                    //kiểm tra phone
+                    if(phone.length == 10 || phone.length == 11){
+                        if(error.indexOf("phone") >= 0){
+                            error.splice(error.indexOf("phone"),1)
+                        }
+                        $('#phone').css({"border":"2px solid #47d864"})
+                        $('#notification').html("")
+                    }else{
+                        if(error.indexOf("phone") < 0){
+                            error.push("phone")
+                        }
+                        $('#phone').css({"border":"2px solid #ff623d"})
+                        $('#notification').html('<h6 style="color: #ff623d;">Số điện thoại không hợp lệ</h6>')
+                    }
+                })
+                $('#address').keyup(function(){
+                    address =  $('#address').val()
+                    //kiểm tra address
+                    if(address.length >= 2){
+                        if(error.indexOf("address") >= 0){
+                            error.splice(error.indexOf("address"),1)
+                        }
+                        $('#address').css({"border":"2px solid #47d864"})
+                        $('#notification').html("")
+                    }else{
+                        if(error.indexOf("address") < 0){
+                            error.push("address")
+                        }
+                        $('#address').css({"border":"2px solid #ff623d"})
+                        $('#notification').html('<h6 style="color: #ff623d;">Địa chỉ phải trên 2 kí tự</h6>')
+                    }
+                })
+            })
+		</script>
+    <script>
+      imgInp.onchange = evt => {
+  const [file] = imgInp.files
+  if (file) {
+    blah.src = URL.createObjectURL(file)
+  }
+}
+    </script>
+{% endblock %}

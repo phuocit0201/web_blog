@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Thêm Mới Bài Viết{% endblock %}
+{% block content %}
+<style>
+    select{
+    width: 100%;
+    height: 46px;
+    border: 1px solid #eee;
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: #7a7a7a;
+    outline: none;
+    padding: 0px 15px;
+    margin-bottom: 30px;
+    }
+</style>
+<section class="contact-us">
+      <div class="container">
+        <div class="row">
+          <div id="snackbar"></div>
+          <div class="col-lg-12">
+            <div class="down-contact">
+              <div class="row">
+                <div class="col-lg-8">
+                  <div class="sidebar-item contact-form">
+                    <div class="sidebar-heading">
+                      <h2>THÊM MỚI BÀI VIẾT</h2>
+                    </div>
+                    <div class="content">
+                      <form id="contact" action="javascript:void(0)" method="post">
+                        <div class="row">
+                          <div class="col-md-12 col-sm-12">
+                            <fieldset>
+                              <input class="form-control" name="name" onkeyup="removeAccents(this)" type="text" id="name" placeholder="Tiêu Đề Bài Viết">
+                              <input type="text" name="slug" id="slug" hidden>
+                            </fieldset>
+                          </div>
+                          <div class="col-md-12 col-sm-12">
+                            <fieldset>
+                                <select  id="category" name="category" class="col-md-12 col-sm-12">
+                                {% for i in categorys %}
+                                    <option value="{{i.category_id}}">{{i.category_name}}</option>
+                                {%endfor%}
+                                </select>
+                            </fieldset>
+                          </div>
+                          <div class="col-md-12 col-sm-12">
+                            <fieldset>
+                              <input class="form-control" style="padding-top: 10px;" name="img" type="file" id="img">
+                            </fieldset>
+                          </div>
+                          <div class="col-lg-12">
+                            <div id="example"></div>
+                          </div>
+                          <div class="col-lg-12">
+                            <fieldset>
+                              <button id="addblog" style="margin-top: 10px;" type="submit" id="form-submit" class="main-button">THÊM</button>
+                            </fieldset>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="sidebar">
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <div class="sidebar-item categories">
+                        <div class="sidebar-heading">
+                          <h2>Danh Mục Bài Viết</h2>
+                        </div>
+                        <div class="content">
+                          <ul>
+                            {% for category in categorys %}
+                                <li><a href="{% url 'danh-muc' category.category_slug %}">- {{category.category_name}}</a></li>
+                            {% endfor %}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-12">
+                      <div class="sidebar-item recent-posts">
+                        <div class="sidebar-heading">
+                          <h2>Bài viết mới nhất</h2>
+                        </div>
+                        <div class="content">
+                          <ul>
+                            {% for blognew in blognew %}
+                                <li>
+                                    <a href="{% url 'chi-tiet' blognew.blog_slug %}">
+                                    <h5>{{blognew.blog_title}}</h5>
+                                    <span>{{blognew.blog_create_date}}, bởi {{blognew.blog_author}}</span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                
+                </div>
+            </div>
+          </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script type="text/javascript" src="{% static 'froala-editor/js/froala_editor.pkgd.min.js' %}"></script>
+		<script> 
+			var editor = new FroalaEditor('#example');
+            $(document).ready(function(){
+                $('#addblog').click(function(){
+                  var name = $('#name').val()
+                  var category = $('#category').val()
+                  var slug = $('#slug').val()
+                  var img = $('#img').val().split("\\")[2]
+                  var imgg = $('#img').val()
+                  var content = $('.fr-view').html()
+                  var text = $('.fr-view').text()
+                  if(name != "" && category != "" && slug != "" && imgg !="" && text != ""){
+                    $.post("{% url 'addblog' %}",{
+                      name:name,
+                      category:category,
+                      slug:slug,
+                      img:img,
+                      content:content
+                    },function(data){
+                      $('#snackbar').css({"background-color":"#47d864"})
+                      $('#snackbar').html("<i class='fas fa-check-circle'></i> Thêm bài viết thành công")
+                      var x = document.getElementById("snackbar");
+                      x.className = "show";
+                      setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+                      $('#name').val("")
+                      $('#slug').val("")
+                      $('#img').val("")
+                      $('.fr-view').text("")
+                    });
+                  }else{
+                      $('#snackbar').css({"background-color":"#ff623d"})
+                      $('#snackbar').html("<i class='fas fa-exclamation-circle'></i> Vui lòng điền đầy đủ thông tin")
+                      var x = document.getElementById("snackbar");
+                      x.className = "show";
+                      setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+                  }
+                });
+            })
+            
+		</script>
+    <script>
+      function removeAccents(str) {
+          let substr = str.value;
+          var AccentsMap = [
+              "aàảãáạăằẳẵắặâầẩẫấậ",
+              "AÀẢÃÁẠĂẰẲẴẮẶÂẦẨẪẤẬ",
+              "dđ", "DĐ",
+              "eèẻẽéẹêềểễếệ",
+              "EÈẺẼÉẸÊỀỂỄẾỆ",
+              "iìỉĩíị",
+              "IÌỈĨÍỊ",
+              "oòỏõóọôồổỗốộơờởỡớợ",
+              "OÒỎÕÓỌÔỒỔỖỐỘƠỜỞỠỚỢ",
+              "uùủũúụưừửữứự",
+              "UÙỦŨÚỤƯỪỬỮỨỰ",
+              "yỳỷỹýỵ",
+              "YỲỶỸÝỴ",
+              " .:/@#<>%^*()",
+          ];
+          for (var i=0; i<AccentsMap.length; i++) {
+              var re = new RegExp('[' + AccentsMap[i].substr(1) + ']', 'g');
+              var char = AccentsMap[i][0];
+              substr = substr.replace(re, char);
+              substr = substr.replace(/\s/g,'-');
+          }
+          substr+="-"+randomstr(10)
+          document.querySelector('#slug').value = substr;
+      }
+      function randomstr(length) {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      
+        for (var i = 0; i < length; i++)
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+      
+        return text;
+      }
+  </script>
+{% endblock %}

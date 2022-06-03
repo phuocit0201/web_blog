@@ -1,0 +1,89 @@
+      
+<style>
+    .pagination > li{
+        padding: 10px 20px;
+        margin-left: 5px;
+        background: rgb(184, 181, 181);
+    }
+</style>
+
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Trang Chủ{% endblock %}
+{% block content %}           
+    <section class="blog-posts grid-system">
+      <div class="container">
+        <div class="row">
+          <div id="snackbar"></div>
+          <div class="col-lg-12">
+            <div class="all-blog-posts">
+              <div class="row" style="min-height: 300px;">
+                {% if blogs != "" %}
+                    {% for blog in blogs %}
+                        <div id="blog-{{blog.blog_id}}" class="col-lg-4">
+                            <div class="blog-post">
+                                <div class="blog-thumb">
+                                <img style = "height:300px; object-fit: cover;" src="{% static 'img/' %}{{blog.blog_img}}" alt="">
+                                </div>
+                                <div class="down-content">
+                                <a href="{% url 'chi-tiet' blog.blog_slug %}"><h4>{{blog.blog_title}}</h4></a>
+                                <ul class="post-info">
+                                    <li><a href="#">{{blog.blog_author}}</a></li>
+                                    <li><a href="#">{{blog.blog_create_date}}</a></li>
+                                </ul>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {%else%}
+                    <h2>Hiện người này chưa có bài viết nào</h2>
+                {%endif%}
+                <div class="col-lg-12">
+                    {% if blogs.has_other_pages %}
+                        <ul class="pagination">
+                            {% if blogs.has_previous %}
+                                <li><a href="?page={{ blogs.previous_page_number }}">&laquo;</a></li>
+                            {% else %}
+                                <li class="disabled"><span>&laquo;</span></li>
+                            {% endif %}
+                            {% for i in blogs.paginator.page_range %}
+                                {% if blogs.number == i %}
+                                    <li style="font-weight: bold; background: #f48840;" class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                                {% else %}
+                                    <li ><a href="?page={{ i }}">{{ i }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            {% if blogs.has_next %}
+                                <li><a href="?page={{ blogs.next_page_number }}">&raquo;</a></li>
+                                {% else %}
+                                <li class="disabled"><span>&raquo;</span></li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script>
+      //dùng ajax để xóa blog
+      $(document).ready(function(){
+        $('.delete-blog').click(function(){
+          var idblog = $(this).attr('idblog')
+          $.get("{% url 'deleteblog' %}",{delete:1,id:idblog},function(data){
+            console.log(data)
+            if(data == 1){
+              $('#snackbar').html("<i class='fas fa-check-circle'></i> Xóa bài viết thành công")
+              var x = document.getElementById("snackbar");
+              x.className = "show";
+              setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+              $('#blog-'+idblog).remove()
+            }
+          })
+          
+        })
+      })
+    </script>
+{% endblock %}
